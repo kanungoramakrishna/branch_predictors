@@ -1,8 +1,8 @@
 import ibex_pkg::*;
 module bp_gshare#(
-  parameter int unsigned CTableSize = 256,
+  parameter int unsigned CTableSize = 1024,
   parameter int unsigned CounterLen = 2,
-  parameter int unsigned GHRLen = 8)
+  parameter int unsigned GHRLen = 10)
   (
   input  logic clk_i,
   input  logic rst_ni,
@@ -83,7 +83,7 @@ module bp_gshare#(
   end
 
   //Prediction logic
-  assign pred_index = fetch_pc_i[GHRLen:1] ^ GHR;
+  assign pred_index = fetch_pc_i[GHRLen +1:2] ^ GHR;
   assign br_taken = ~ctable[pred_index][CounterLen-1];
   assign predict_branch_taken_o = fetch_valid_i & (instr_j | instr_cj | ( br_taken & (instr_b | instr_cb)));
   assign predict_branch_pc_o    = fetch_pc_i + branch_imm;
@@ -104,7 +104,7 @@ module bp_gshare#(
   end
 
   always_comb begin
-    update_index = ex_br_instr_addr_i[GHRLen:1] ^ GHR;
+    update_index = ex_br_instr_addr_i[GHRLen+1:2] ^ GHR;
     counter_next = ctable[update_index];
     overflow_taken = &ctable[update_index][CounterLen-2:0] & ~ctable[update_index][CounterLen-1];
     overflow_not_taken = &(~(ctable[update_index][CounterLen-2:0])) & ctable[update_index][CounterLen-1];

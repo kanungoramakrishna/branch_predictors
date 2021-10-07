@@ -1,7 +1,7 @@
 import ibex_pkg::*;
 module bp_bimodal#(
-  parameter int unsigned CTableSize = 256,
-  parameter int unsigned CounterLen = 2)
+  parameter int unsigned CTableSize = 512,
+  parameter int unsigned CounterLen = 4)
   (
   input  logic clk_i,
   input  logic rst_ni,
@@ -79,7 +79,7 @@ module bp_bimodal#(
   end
 
   //Prediction logic
-  assign br_taken = ~ctable[fetch_pc_i[$clog2(CTableSize):1]][CounterLen-1];
+  assign br_taken = ~ctable[fetch_pc_i[$clog2(CTableSize) + 1:2]][CounterLen-1];
   assign predict_branch_taken_o = fetch_valid_i & (instr_j | instr_cj | ( br_taken& (instr_b | instr_cb)));
   assign predict_branch_pc_o    = fetch_pc_i + branch_imm;
 
@@ -94,7 +94,7 @@ module bp_bimodal#(
   end
 
   always_comb begin
-    update_index = ex_br_instr_addr_i[$clog2(CTableSize):1];
+    update_index = ex_br_instr_addr_i[$clog2(CTableSize)+1:2];
     counter_next = ctable[update_index];
     overflow_taken = &ctable[update_index][CounterLen-2:0] & ~ctable[update_index][CounterLen-1];
     overflow_not_taken = &(~(ctable[update_index][CounterLen-2:0])) & ctable[update_index][CounterLen-1];

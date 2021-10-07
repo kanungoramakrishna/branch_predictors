@@ -174,6 +174,7 @@ always @(posedge clk) begin
     $display("[STAT] %m: Total correct: %0d Total mispredicted: %0d", total_correct, total_mispred);
     $display("[STAT] %m: Prediction accuracy: %f", real'(total_correct) / real'(TraceLen));
     $display("[INFO] %m: Ending simulation");
+    $display("theta is %d", bp.theta);
     $stop();
     $finish;
   end
