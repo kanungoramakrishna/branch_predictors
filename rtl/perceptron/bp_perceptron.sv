@@ -2,7 +2,7 @@ import ibex_pkg::*;
 module bp_perceptron#(
   parameter int unsigned PTableSize = 1024,
   parameter int unsigned PWeightLen = 9,
-  parameter int unsigned GHRLen = 8)
+  parameter int unsigned GHRLen = 12)
   (
   input  logic clk_i,
   input  logic rst_ni,
@@ -50,7 +50,7 @@ module bp_perceptron#(
   logic overflow_taken, overflow_not_taken;
   logic signed [PWeightLen*2-3:0] br_taken;
   logic signed [PWeightLen*2-3:0] yout [1:0];
-  logic signed [PWeightLen*2-3:0] yout_mag;
+  logic signed [PWeightLen*2-3:0] yout_mag,yout_mag2;
   logic signed [PWeightLen*2-3:0] theta;
 
 
@@ -98,6 +98,10 @@ module bp_perceptron#(
     for(int j=0; j<GHRLen; j++) begin
       br_taken += GHR[j] ? ptable_w[pred_index][j] : ((~ptable_w[pred_index][j])+1) ;
     end
+    yout_mag2 = ptable_b[update_index];
+    for(int j=0; j<GHRLen; j++) begin
+      yout_mag2 += GHR[j] ? ptable_w[update_index][j] : ((~ptable_w[update_index][j])+1) ;
+    end
   end
 
   //Shift register to store the value of yout
@@ -111,7 +115,7 @@ module bp_perceptron#(
       yout[1] <= yout[0];
     end
   end
-  assign yout_mag = yout[1][PWeightLen*2-3] ? ((~yout[1])+1) : yout[1];
+  assign yout_mag = yout_mag2[PWeightLen*2-3] ? ((~yout_mag2)+1) : yout_mag2;
 
   //Update Logic
   assign update_index = ex_br_instr_addr_i[$clog2(PTableSize)+1:2];
