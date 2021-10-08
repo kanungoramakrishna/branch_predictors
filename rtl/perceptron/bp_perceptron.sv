@@ -131,7 +131,7 @@ module bp_perceptron#(
     else begin
       if(ex_br_valid_i) begin
         GHR <= {GHR[GHRLen-2:0], ex_br_taken_i};
-        if(~ex_br_taken_i != yout[1][PWeightLen*2-3] || yout_mag<theta) begin
+        if(~ex_br_taken_i != yout_mag2[PWeightLen*2-3] || yout_mag<theta) begin
         // if(1) begin
           overflow_taken = &ptable_b[update_index][PWeightLen-2:0] & ~ptable_b[update_index][PWeightLen-1];
           overflow_not_taken = &(~(ptable_b[update_index][PWeightLen-2:0])) & ptable_b[update_index][PWeightLen-1];
